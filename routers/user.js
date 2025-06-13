@@ -45,7 +45,7 @@ router.get('/user/:id',verifyTokenAndAuthorization, async (req, res) =>{
       const{password, ...others} = user._doc;
        res.status(200).json(others,user_token)
     }catch(err){
-        res.status(500).json("Something Wrong!")
+        res.status(500).json(err)
     }
 });
 
