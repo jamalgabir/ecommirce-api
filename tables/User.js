@@ -1,5 +1,7 @@
 
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+const dotenv = require('dotenv').config();
 
 const UserSchema = new mongoose.Schema(
     {

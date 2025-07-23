@@ -38,43 +38,49 @@ router.post('/register', async (req,res) =>{
     
 });
 
-router.post('/login', async (req,res) =>{
-    try{
-        
-        const user = await User.findOne({email:req.body.email});
-        !user && res.status(401).json({message:'Email or password is wrong!'});
-
-        // const hashedPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC);
-        // const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-
-        // originalPassword !== req.body.password && res.status(401).json({message:'wrong password!'});
-
-        const accessToken = jwt.sign(
-            {id:user._id, isAdmin:true},
-            process.env.JWT_SEC,
-            {expiresIn: '1d'}
-        );
-        res.cookie("access_token", accessToken,{
-            httpOnly:true,
-            secure: true,
-            
-        })
-        const {password,...others} = user._doc;
-        // res.cookie('token', accessToken,{
-        //     maxAge:3000,
-        //     expires: new Date('16 7 2022'),
-        //     secure: true,
-        //     httpOnly: true,
-        //     sameSite:'lax'
-        // });
-        res.status(200).json({...others,accessToken});
-
-    }catch(error){
-        console.log(error)
-        res.status(500).json({message:"Ops! something Wrong!!"})
+router.post('/login', async (req, res) => {
+    try {
+      const user = await User.findOne({ email: req.body.email });
+  
+      if (!user) {
+        return res.status(401).json({ message: 'Email or password is incorrect!' });
+      }
+  
+      // 🔐 Decrypt password
+      const hashedPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC);
+      const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+  
+      if (originalPassword !== req.body.password) {
+        return res.status(401).json({ message: 'Email or password is incorrect!' });
+      }
+  
+      // ✅ Create JWT
+      const accessToken = jwt.sign(
+        {
+          id: user._id,
+          isAdmin: user.isAdmin, // use actual role
+        },
+        process.env.JWT_SEC,
+        { expiresIn: '1d' }
+      );
+  
+      // Set Cookie (optional)
+      res.cookie("access_token", accessToken, {
+        httpOnly: true,
+        secure: true, // true only for HTTPS
+        sameSite: "Lax",
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+      });
+  
+      const { password, ...others } = user._doc;
+  
+      res.status(200).json({ ...others, accessToken });
+  
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Oops! Something went wrong." });
     }
-
-});
+  });
 // Forgot-Password Router.
 router.post("/forgot-password",async (req, res) =>{
     const {email} = req.body;

@@ -38,16 +38,20 @@ router.delete('/user/:id', verifyTokenAndAuthorization, async (req, res) =>{
     }
 });
 //GET USER
-router.get('/user/:id',verifyTokenAndAuthorization, async (req, res) =>{
-    try{
-      const user = await User.findById(req.params.id)
-      const user_token = user.createResetToken();
-      const{password, ...others} = user._doc;
-       res.status(200).json(others,user_token)
-    }catch(err){
-        res.status(500).json(err)
+router.get('/user/:id', verifyTokenAndAuthorization, async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      //const user_token = user.createResetToken(); // Make sure this method is defined properly
+      const { password, ...others } = user._doc;
+  
+      res.status(200).json(others);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-});
+  });
+  
 
 //GET ALL THE USERS
 router.get('/users', verifyTokenAndAdmin, async (req, res) =>{
