@@ -5,9 +5,9 @@ const dotenv = require('dotenv').config();
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer"),
+    
 //REGISTER ROUTER
-
 router.post('/register', async (req,res) =>{
     const first = await req.body.firstname;
     const last =await req.body.lastname;
@@ -33,8 +33,6 @@ router.post('/register', async (req,res) =>{
         console.log(error)
         res.status(500).json({message:"Ops!! Something Wrong!!"})
     } 
-
-    
     
 });
 
@@ -81,6 +79,7 @@ router.post('/login', async (req, res) => {
       res.status(500).json({ message: "Oops! Something went wrong." });
     }
   });
+
 // Forgot-Password Router.
 router.post("/forgot-password",async (req, res) =>{
     const {email} = req.body;
